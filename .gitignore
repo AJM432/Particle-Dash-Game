@@ -5,3 +5,4 @@ lib/
 main
 main.o
 Particle.o
+*.DS_Store
