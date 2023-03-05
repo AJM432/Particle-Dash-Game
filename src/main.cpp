@@ -26,6 +26,8 @@ int main()
 	// creates mouse shape
 	Particle mouseShape(sf::Vector2f(0, 0), sf::Vector2f(0, 0), sf::Vector2f(0, 0), 10, 1, sf::Color::White);
 
+	Particle p1(sf::Vector2f(0, 0), sf::Vector2f(0, 0), sf::Vector2f(0, 0), 10, 1, sf::Color::White);
+
 
 	sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Particle Fluid Simulation");
 	window.setFramerateLimit(FPS);
@@ -48,10 +50,12 @@ int main()
 
 		for (int i=0; i < NUM_PARTICLES; i++) {
 			particle_array[i].update(window, delta_time.asSeconds());
+			if (mouseShape.collided(particle_array[i])) {
+				std::cout << mouseShape.pos.x << std::endl;
+			}
 		}
 		mouseShape.pos.x = localPosition.x;
 		mouseShape.pos.y=  localPosition.y-mouseShape.radius;
-		std::cout << localPosition.y << std::endl;
 		mouseShape.update(window, delta_time.asSeconds());
 		window.display();
 	}

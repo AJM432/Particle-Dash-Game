@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <cstdlib>
 #include <ctime>
+#include <math.h>
+#include <vector>
 
 #include <Particle.hpp>
 #include <Global.hpp>
@@ -17,7 +19,7 @@ Particle::Particle()
 	vel=sf::Vector2f(HelperFunc::randNum(std::rand(), 0, MAX_VELOCITY), 
 			HelperFunc::randNum(std::rand(), 0, MAX_VELOCITY));
 
-	acc=sf::Vector2f(0, 0);
+	acc=sf::Vector2f(0, 98.1);
 	mass=1;
 	shape.setRadius(radius);
 	sf::Color color(radius*(255/MAX_RADIUS), vel.x*(255/MAX_VELOCITY), vel.y*(255/MAX_VELOCITY)); // red
@@ -69,4 +71,13 @@ void Particle::update(sf::RenderWindow& window, double delta_time)
 	shape.setPosition(pos);
 
 	window.draw(shape);
+}
+
+bool Particle::collided(Particle other)
+{
+	double xDistance = (other.pos.x - other.radius) - (this->pos.x - this->radius);
+	double yDistance = (other.pos.y - other.radius) - (this->pos.y - this->radius);
+	double dist = sqrt(pow(xDistance, 2) + pow(yDistance, 2)); // compute distance
+	return dist <= this->radius + other.radius;
+
 }
