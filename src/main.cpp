@@ -13,6 +13,7 @@
 int main()
 {
 	sf::Clock clock;
+	sf::Clock gameClock;
 	std::vector<Particle> particle_array(NUM_PARTICLES);
 
 	std::srand(time(NULL)); // init rand seed
@@ -25,6 +26,10 @@ int main()
 
 	// creates mouse shape
 	Particle mouseShape(sf::Vector2f(0, 0), sf::Vector2f(0, 0), sf::Vector2f(0, 0), 10, 1, sf::Color::White);
+
+	Particle startP(sf::Vector2f(0, 0), sf::Vector2f(0, 0), sf::Vector2f(0, 0), 10, 1, sf::Color::Red);
+	Particle endP(sf::Vector2f(0, 0), sf::Vector2f(0, 0), sf::Vector2f(0, 0), 10, 1, sf::Color::Green);
+	endP.pos = sf::Vector2f(WIDTH-11, HEIGHT - 11); // BUG, must declare position again, defaulting to zero?
 	 
 	// creates array that records mouse positions
 	std::vector<sf::Vector2f> position_array;
@@ -52,14 +57,26 @@ int main()
 
 		for (int i=0; i < NUM_PARTICLES; i++) {
 			particle_array[i].update(window, delta_time.asSeconds());
-			// if (mouseShape.collided(particle_array[i])) {
-			// 	std::cout << mouseShape.pos.x << std::endl;
-			// }
+			if (mouseShape.collided(particle_array[i])) {
+				std::cout << "COLLIDED!" << std::endl;
+				window.close();
+				break;
+			}
+		}
+
+		if (mouseShape.collided(endP)) {
+			std::cout << "WON!" << std::endl;
+			std::cout << "Total Distance: " << totalDistance << std::endl;
+			sf::Time elapsedTime = gameClock.getElapsedTime();
+			std::cout << "Time Elapsed: " << elapsedTime.asSeconds() << std::endl;
+			window.close();
 		}
 
 		mouseShape.pos.x = localPosition.x;
 		mouseShape.pos.y=  localPosition.y-mouseShape.radius;
-		mouseShape.update(window, delta_time.asSeconds());
+
+
+
 		if (position_array.size() <= 1) {
 			position_array.push_back(mouseShape.pos); // records position of mouse
 		}
@@ -71,9 +88,10 @@ int main()
 			sf::Vertex line[] = {sf::Vertex(position_array[i]), sf::Vertex(position_array[i+1])};
 			window.draw(line, 2, sf::Lines);
 		}
-		std::cout << totalDistance << std::endl;
 
-
+		startP.update(window, delta_time.asSeconds());
+		endP.update(window, delta_time.asSeconds());
+		mouseShape.update(window, delta_time.asSeconds());
 
 		window.display();
 	}
