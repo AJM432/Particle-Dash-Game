@@ -24,8 +24,8 @@ int main()
 		particle_array.push_back(p); 
 	}
 
-	// creates mouse shape
-	Particle mouseShape(sf::Vector2f(0, 0), sf::Vector2f(0, 0), sf::Vector2f(0, 0), 10, 1, sf::Color::White);
+	// creates player
+	Particle player(sf::Vector2f(0, 0), sf::Vector2f(0, 0), sf::Vector2f(0, 0), 10, 1, sf::Color::White);
 
 	Particle startP(sf::Vector2f(0, 0), sf::Vector2f(0, 0), sf::Vector2f(0, 0), 10, 1, sf::Color::Red);
 	Particle endP(sf::Vector2f(0, 0), sf::Vector2f(0, 0), sf::Vector2f(0, 0), 10, 1, sf::Color::Green);
@@ -34,17 +34,15 @@ int main()
 	// creates array that records mouse positions
 	std::vector<sf::Vector2f> position_array;
 
-	sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Particle Fluid Simulation");
+	sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Particle Dash");
 	window.setFramerateLimit(FPS);
 
-	sf::Vector2i localPosition = sf::Mouse::getPosition(window);
 	double totalDistance;
 
 
 	while (window.isOpen())
 	{
 
-		localPosition = sf::Mouse::getPosition(window); // gets mouse position
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -55,16 +53,34 @@ int main()
 		window.clear();
 		sf::Time delta_time = clock.restart();
 
+        // Keyboard Input
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+            player.vel.x -=10;
+
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+            player.vel.x +=10;
+
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+            player.vel.y -=10;
+
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+            player.vel.y +=10;
+
+        }
+
 		for (int i=0; i < NUM_PARTICLES; i++) {
 			particle_array[i].update(window, delta_time.asSeconds());
-			if (mouseShape.collided(particle_array[i])) {
+			if (player.collided(particle_array[i])) {
 				std::cout << "COLLIDED!" << std::endl;
 				window.close();
 				break;
 			}
 		}
 
-		if (mouseShape.collided(endP)) {
+		if (player.collided(endP)) {
 			std::cout << "WON!" << std::endl;
 			std::cout << "Total Distance: " << totalDistance << std::endl;
 			sf::Time elapsedTime = gameClock.getElapsedTime();
@@ -72,17 +88,14 @@ int main()
 			window.close();
 		}
 
-		mouseShape.pos.x = localPosition.x;
-		mouseShape.pos.y=  localPosition.y-mouseShape.radius;
-
 
 
 		if (position_array.size() <= 1) {
-			position_array.push_back(mouseShape.pos); // records position of mouse
+			position_array.push_back(sf::Vector2f(player.pos.x-player.radius, player.pos.y-player.radius)); // records position of mouse
 		}
-		else if (mouseShape.pos != position_array.back()) {
-			totalDistance += HelperFunc::distance(position_array.back().x, position_array.back().y, mouseShape.pos.x, mouseShape.pos.y);
-			position_array.push_back(mouseShape.pos); // records position of mouse
+		else if (player.pos != position_array.back()) {
+			totalDistance += HelperFunc::distance(position_array.back().x, position_array.back().y, player.pos.x, player.pos.y);
+			position_array.push_back(player.pos); // records position of mouse
 		}
 		for (int i=0; i < position_array.size()-1; ++i) {
 			sf::Vertex line[] = {sf::Vertex(position_array[i]), sf::Vertex(position_array[i+1])};
@@ -91,7 +104,7 @@ int main()
 
 		startP.update(window, delta_time.asSeconds());
 		endP.update(window, delta_time.asSeconds());
-		mouseShape.update(window, delta_time.asSeconds());
+		player.update(window, delta_time.asSeconds());
 
 		window.display();
 	}
